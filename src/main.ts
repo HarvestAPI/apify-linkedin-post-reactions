@@ -67,6 +67,7 @@ for (const post of input.posts) {
     },
     overrideConcurrency: 6,
     maxItems,
+    disableLog: true,
   });
 }
 
