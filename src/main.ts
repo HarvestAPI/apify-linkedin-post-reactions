@@ -2,6 +2,7 @@
 import { createLinkedinScraper } from '@harvestapi/scraper';
 import { Actor } from 'apify';
 import { config } from 'dotenv';
+import { createConcurrentQueues } from './utils/queue.js';
 
 config();
 
@@ -54,7 +55,7 @@ if (actorMaxPaidDatasetItems && maxItems && maxItems > actorMaxPaidDatasetItems)
   maxItems = actorMaxPaidDatasetItems;
 }
 
-for (const post of input.posts) {
+const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
   await scraper.scrapePostReactions({
     query: {
       post: post,
@@ -65,11 +66,13 @@ for (const post of input.posts) {
       console.info(`Scraped reaction ${item?.id}`);
       await Actor.pushData(item);
     },
-    overrideConcurrency: 6,
+    overrideConcurrency: 2,
     maxItems,
     disableLog: true,
   });
-}
+});
+
+await Promise.all(input.posts.map((post) => scrapePostQueue(post)));
 
 // Gracefully exit the Actor process. It's recommended to quit all Actors with an exit().
 await Actor.exit();
