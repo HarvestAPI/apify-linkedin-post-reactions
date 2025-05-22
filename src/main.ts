@@ -54,6 +54,7 @@ let maxItems = Number(input.maxItems) || actorMaxPaidDatasetItems || undefined;
 if (actorMaxPaidDatasetItems && maxItems && maxItems > actorMaxPaidDatasetItems) {
   maxItems = actorMaxPaidDatasetItems;
 }
+let totalItemsCounter = 0;
 
 const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
   await scraper.scrapePostReactions({
@@ -63,6 +64,14 @@ const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
     },
     outputType: 'callback',
     onItemScraped: async ({ item }) => {
+      totalItemsCounter++;
+
+      if (actorMaxPaidDatasetItems && totalItemsCounter > actorMaxPaidDatasetItems) {
+        console.warn('Max items reached, exiting...');
+        await Actor.exit();
+        process.exit(0);
+      }
+
       console.info(`Scraped reaction ${item?.id}`);
       await Actor.pushData(item);
     },
