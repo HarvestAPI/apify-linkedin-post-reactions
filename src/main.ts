@@ -28,12 +28,6 @@ if (!input.posts?.length) {
   process.exit(0);
 }
 
-const query: {
-  posts: string[];
-} = {
-  posts: input.posts || [],
-};
-
 const { actorId, actorRunId, actorBuildId, userId, actorMaxPaidDatasetItems, memoryMbytes } =
   Actor.getEnv();
 
@@ -63,11 +57,12 @@ let totalItemsCounter = 0;
 let datasetLastPushPromise: Promise<any> | undefined;
 
 const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
+  const reactionsQuery = {
+    post: post,
+  };
+
   await scraper.scrapePostReactions({
-    query: {
-      post: post,
-      ...query,
-    },
+    query: reactionsQuery,
     outputType: 'callback',
     onItemScraped: async ({ item }) => {
       totalItemsCounter++;
@@ -79,7 +74,7 @@ const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
       }
 
       console.info(`Scraped reaction ${item?.id}`);
-      datasetLastPushPromise = Actor.pushData(item);
+      datasetLastPushPromise = Actor.pushData({ ...item, query: reactionsQuery });
     },
     overrideConcurrency: 2,
     maxItems,
