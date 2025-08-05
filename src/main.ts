@@ -1,5 +1,5 @@
 // Apify SDK - toolkit for building Apify Actors (Read more at https://docs.apify.com/sdk/js/).
-import { createLinkedinScraper } from '@harvestapi/scraper';
+import { createLinkedinScraper, PostReaction } from '@harvestapi/scraper';
 import { Actor } from 'apify';
 import { config } from 'dotenv';
 import { createConcurrentQueues } from './utils/queue.js';
@@ -54,7 +54,24 @@ if (actorMaxPaidDatasetItems && maxItems && maxItems > actorMaxPaidDatasetItems)
   maxItems = actorMaxPaidDatasetItems;
 }
 let totalItemsCounter = 0;
-let datasetLastPushPromise: Promise<any> | undefined;
+
+const pushData = createConcurrentQueues(
+  190,
+  async (item: PostReaction, query: Record<string, any>) => {
+    totalItemsCounter++;
+
+    if (actorMaxPaidDatasetItems && totalItemsCounter > actorMaxPaidDatasetItems) {
+      setTimeout(async () => {
+        console.warn('Max items reached, exiting...');
+        await Actor.exit();
+      }, 1000);
+      return;
+    }
+
+    console.info(`Scraped reaction ${item?.id}`);
+    await Actor.pushData({ ...item, query });
+  },
+);
 
 const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
   const reactionsQuery = {
@@ -65,16 +82,8 @@ const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
     query: reactionsQuery,
     outputType: 'callback',
     onItemScraped: async ({ item }) => {
-      totalItemsCounter++;
-
-      if (actorMaxPaidDatasetItems && totalItemsCounter > actorMaxPaidDatasetItems) {
-        console.warn('Max items reached, exiting...');
-        await Promise.all([datasetLastPushPromise, Actor.exit()]);
-        process.exit(0);
-      }
-
-      console.info(`Scraped reaction ${item?.id}`);
-      datasetLastPushPromise = Actor.pushData({ ...item, query: reactionsQuery });
+      if (!item) return;
+      await pushData(item, reactionsQuery);
     },
     overrideConcurrency: 2,
     maxItems,
@@ -83,7 +92,6 @@ const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
 });
 
 await Promise.all(input.posts.map((post) => scrapePostQueue(post)));
-await datasetLastPushPromise;
 
 // Gracefully exit the Actor process. It's recommended to quit all Actors with an exit().
 await Actor.exit();
