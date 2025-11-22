@@ -17,6 +17,7 @@ await Actor.init();
 interface Input {
   posts: string[];
   maxItems?: number;
+  profileScraperMode: 'short' | 'main' | 'full' | 'full_email_search';
 }
 // Structure of input is defined in input_schema.json
 const input = await Actor.getInput<Input>();
@@ -54,11 +55,30 @@ if (actorMaxPaidDatasetItems && maxItems && maxItems > actorMaxPaidDatasetItems)
   maxItems = actorMaxPaidDatasetItems;
 }
 let totalItemsCounter = 0;
+const shouldScrapeProfiles =
+  input.profileScraperMode === 'main' ||
+  input.profileScraperMode === 'full' ||
+  input.profileScraperMode === 'full_email_search';
 
 const pushData = createConcurrentQueues(
-  190,
+  shouldScrapeProfiles ? 20 : 190,
   async (item: PostReaction, query: Record<string, any>) => {
     totalItemsCounter++;
+
+    if (item.actor?.linkedinUrl && shouldScrapeProfiles) {
+      const profile = await scraper
+        .getProfile({
+          url: item.actor?.linkedinUrl,
+          short: true,
+        })
+        .catch((err) => {
+          console.warn(`Failed to fetch profile ${item.actor?.linkedinUrl}: ${err.message}`);
+          return null;
+        });
+      if (profile?.element?.id) {
+        item.actor = { ...item.actor, ...profile.element };
+      }
+    }
 
     if (actorMaxPaidDatasetItems && totalItemsCounter > actorMaxPaidDatasetItems) {
       setTimeout(async () => {

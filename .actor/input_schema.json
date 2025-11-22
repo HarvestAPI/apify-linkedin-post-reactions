@@ -19,6 +19,17 @@
       "type": "integer",
       "description": "Maximum number of reactions to scrape per each post",
       "prefill": 10
+    },
+    "profileScraperMode": {
+      "title": "Profile Scraper Mode",
+      "type": "string",
+      "enum": ["short", "main", "full", "full_email_search"],
+      "enumTitles": [
+        "Short (no charge for profile details)",
+        "Main - profile details without expanding profile sections ($0.002 per main profile)"
+      ],
+      "description": "Choose the mode for scraping LinkedIn profiles. The Short mode provides basic information, while the Full mode includes full detailed profile data.",
+      "default": "short"
     }
   }
 }
