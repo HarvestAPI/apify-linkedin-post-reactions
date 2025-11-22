@@ -22,9 +22,11 @@ Other params (optionally):
 
 - Reaction type (like, love, insightful, etc.)
 - Actor's name
-- Actor's LinkedIn URL
+- Actor's LinkedIn encoded URL
 - Actor's position
 - Actor's profile picture URL
+
+Note: By default, Actor's encoded LinkedIn profile URL is returns. That's because LinkedIn website shows these URLs for reactions, and our Actor can only get the information available on the website. To work around this, you can enable profile scraping on the Actor's input page -> `Profile Scraper Mode` field. This will allow the Actor to visit each encoded link and extract the actual LinkedIn profile URL along with additional profile details (additional cost applies for profile scraping).
 
 ### Sample output data
 
