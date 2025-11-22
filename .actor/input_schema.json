@@ -23,7 +23,7 @@
     "profileScraperMode": {
       "title": "Profile Scraper Mode",
       "type": "string",
-      "enum": ["short", "main", "full", "full_email_search"],
+      "enum": ["short", "main"],
       "enumTitles": [
         "Short (no charge for profile details)",
         "Main - profile details without expanding profile sections ($0.002 per main profile)"
