@@ -20,6 +20,25 @@
       "description": "Maximum number of reactions to scrape per each post",
       "prefill": 10
     },
+    "reactionTypeFilter": {
+      "title": "Reaction Type Filter",
+      "type": "array",
+      "editor": "select",
+      "items": {
+        "type": "string",
+        "enum": ["ALL", "LIKE", "PRAISE", "EMPATHY", "APPRECIATION", "INTEREST", "ENTERTAINMENT"],
+        "enumTitles": [
+          "All reaction types",
+          "Like",
+          "Praise",
+          "Empathy",
+          "Appreciation",
+          "Interest",
+          "Entertainment"
+        ]
+      },
+      "description": "Select specific reaction types to scrape. If none selected, all reaction types will be scraped."
+    },
     "profileScraperMode": {
       "title": "Profile Scraper Mode",
       "type": "string",

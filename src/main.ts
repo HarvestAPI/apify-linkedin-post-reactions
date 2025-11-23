@@ -18,7 +18,9 @@ interface Input {
   posts: string[];
   maxItems?: number;
   profileScraperMode: 'short' | 'main' | 'full' | 'full_email_search';
+  reactionTypeFilter?: string[];
 }
+
 // Structure of input is defined in input_schema.json
 const input = await Actor.getInput<Input>();
 if (!input) throw new Error('Input is missing!');
@@ -63,7 +65,25 @@ const shouldScrapeProfiles =
 const pushData = createConcurrentQueues(
   shouldScrapeProfiles ? 20 : 190,
   async (item: PostReaction, query: Record<string, any>) => {
+    if (
+      input.reactionTypeFilter &&
+      input.reactionTypeFilter.length &&
+      !input.reactionTypeFilter.includes('ALL')
+    ) {
+      if (!item.reactionType || !input.reactionTypeFilter.includes(item.reactionType)) {
+        return;
+      }
+    }
+
     totalItemsCounter++;
+
+    if (actorMaxPaidDatasetItems && totalItemsCounter > actorMaxPaidDatasetItems) {
+      setTimeout(async () => {
+        console.warn('Max items reached, exiting...');
+        await Actor.exit();
+      }, 1000);
+      return;
+    }
 
     if (item.actor?.linkedinUrl && shouldScrapeProfiles) {
       const profile = await scraper
@@ -80,15 +100,12 @@ const pushData = createConcurrentQueues(
       }
     }
 
-    if (actorMaxPaidDatasetItems && totalItemsCounter > actorMaxPaidDatasetItems) {
-      setTimeout(async () => {
-        console.warn('Max items reached, exiting...');
-        await Actor.exit();
-      }, 1000);
-      return;
-    }
-
     console.info(`Scraped reaction ${item?.id}`);
+    // new events:
+    // post-reaction
+    // main-profile
+    // full-profile
+    // full-profile-with-email
     await Actor.pushData({ ...item, query });
   },
 );
