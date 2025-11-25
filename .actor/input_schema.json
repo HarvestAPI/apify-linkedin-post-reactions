@@ -45,7 +45,7 @@
       "enum": ["short", "main"],
       "enumTitles": [
         "Short (no charge for profile details)",
-        "Main - profile details without expanding profile sections ($0.002 per main profile)"
+        "Main - scrape profile details without expanding profile sections ($0.002 per main profile)"
       ],
       "description": "Choose the mode for scraping LinkedIn profiles. The Short mode provides basic information, while the Full mode includes full detailed profile data.",
       "default": "short"

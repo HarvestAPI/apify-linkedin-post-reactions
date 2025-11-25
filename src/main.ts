@@ -33,6 +33,8 @@ if (!input.posts?.length) {
 
 const { actorId, actorRunId, actorBuildId, userId, actorMaxPaidDatasetItems, memoryMbytes } =
   Actor.getEnv();
+const cm = Actor.getChargingManager();
+const pricingInfo = cm.getPricingInfo();
 
 const client = Actor.newClient();
 const user = userId ? await client.user(userId).get() : null;
@@ -96,6 +98,9 @@ const pushData = createConcurrentQueues(
           return null;
         });
       if (profile?.element?.id) {
+        if (pricingInfo.isPayPerEvent) {
+          Actor.charge({ eventName: 'main-profile' });
+        }
         item.actor = { ...item.actor, ...profile.element };
       }
     }
@@ -106,7 +111,11 @@ const pushData = createConcurrentQueues(
     // main-profile
     // full-profile
     // full-profile-with-email
-    await Actor.pushData({ ...item, query });
+    if (pricingInfo.isPayPerEvent) {
+      await Actor.pushData({ ...item, query }, 'post-reaction');
+    } else {
+      await Actor.pushData({ ...item, query });
+    }
   },
 );
 
