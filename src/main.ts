@@ -132,6 +132,7 @@ const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
       await pushData(item, reactionsQuery);
     },
     overridePageConcurrency: 2,
+    overrideConcurrency: 30,
     maxItems,
     disableLog: true,
   });
