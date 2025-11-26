@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@harvestapi/scraper':
-        specifier: 1.4.35
-        version: 1.4.35
+        specifier: 1.4.36
+        version: 1.4.36
       apify:
         specifier: ^3.2.6
         version: 3.4.2
@@ -289,8 +289,8 @@ packages:
     resolution: {integrity: sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
-  '@harvestapi/scraper@1.4.35':
-    resolution: {integrity: sha512-lhcsKxLKAJlAhXyMzvpPD700XgfFRCLRywPY8BkAtNraa6XeoeI163guuQvSPF2+Abwaqyk2kWzvDAjF7mJUog==}
+  '@harvestapi/scraper@1.4.36':
+    resolution: {integrity: sha512-2ANhWTvE4mLMM0djNWcxynAUil4o20DmR89/NWDy7VZTuFgy7wTRkkicNt4lcsbR9/Sreq4xg0VO8SWBgPlVIA==}
 
   '@humanwhocodes/config-array@0.13.0':
     resolution: {integrity: sha512-DZLEEqFWQFiyK6h5YIeynKx7JlvCYWL0cImfSRXZ9l4Sg2efkFGTuFf6vzXjK1cq6IYkU+Eg/JizXw+TD2vRNw==}
@@ -2283,7 +2283,7 @@ snapshots:
 
   '@eslint/js@8.57.1': {}
 
-  '@harvestapi/scraper@1.4.35':
+  '@harvestapi/scraper@1.4.36':
     dependencies:
       dotenv: 16.4.7
       fs-extra: 11.3.0

@@ -1,8 +1,8 @@
 // Apify SDK - toolkit for building Apify Actors (Read more at https://docs.apify.com/sdk/js/).
-import { createLinkedinScraper, PostReaction } from '@harvestapi/scraper';
+import { createConcurrentQueues, createLinkedinScraper } from '@harvestapi/scraper';
 import { Actor } from 'apify';
 import { config } from 'dotenv';
-import { createConcurrentQueues } from './utils/queue.js';
+import { getPushData } from './utils/pushData.js';
 
 config();
 
@@ -14,7 +14,7 @@ config();
 // The init() call configures the Actor for its environment. It's recommended to start every Actor with an init().
 await Actor.init();
 
-interface Input {
+export interface Input {
   posts: string[];
   maxItems?: number;
   profileScraperMode: 'short' | 'main' | 'full' | 'full_email_search';
@@ -33,8 +33,6 @@ if (!input.posts?.length) {
 
 const { actorId, actorRunId, actorBuildId, userId, actorMaxPaidDatasetItems, memoryMbytes } =
   Actor.getEnv();
-const cm = Actor.getChargingManager();
-const pricingInfo = cm.getPricingInfo();
 
 const client = Actor.newClient();
 const user = userId ? await client.user(userId).get() : null;
@@ -58,66 +56,8 @@ let maxItems = Number(input.maxItems) || actorMaxPaidDatasetItems || undefined;
 if (actorMaxPaidDatasetItems && maxItems && maxItems > actorMaxPaidDatasetItems) {
   maxItems = actorMaxPaidDatasetItems;
 }
-let totalItemsCounter = 0;
-const shouldScrapeProfiles =
-  input.profileScraperMode === 'main' ||
-  input.profileScraperMode === 'full' ||
-  input.profileScraperMode === 'full_email_search';
 
-const pushData = createConcurrentQueues(
-  shouldScrapeProfiles ? 20 : 190,
-  async (item: PostReaction, query: Record<string, any>) => {
-    if (
-      input.reactionTypeFilter &&
-      input.reactionTypeFilter.length &&
-      !input.reactionTypeFilter.includes('ALL')
-    ) {
-      if (!item.reactionType || !input.reactionTypeFilter.includes(item.reactionType)) {
-        return;
-      }
-    }
-
-    totalItemsCounter++;
-
-    if (actorMaxPaidDatasetItems && totalItemsCounter > actorMaxPaidDatasetItems) {
-      setTimeout(async () => {
-        console.warn('Max items reached, exiting...');
-        await Actor.exit();
-      }, 1000);
-      return;
-    }
-
-    if (item.actor?.linkedinUrl && shouldScrapeProfiles) {
-      const profile = await scraper
-        .getProfile({
-          url: item.actor?.linkedinUrl,
-          short: true,
-        })
-        .catch((err) => {
-          console.warn(`Failed to fetch profile ${item.actor?.linkedinUrl}: ${err.message}`);
-          return null;
-        });
-      if (profile?.element?.id) {
-        if (pricingInfo.isPayPerEvent) {
-          Actor.charge({ eventName: 'main-profile' });
-        }
-        item.actor = { ...item.actor, ...profile.element };
-      }
-    }
-
-    console.info(`Scraped reaction ${item?.id}`);
-    // new events:
-    // post-reaction
-    // main-profile
-    // full-profile
-    // full-profile-with-email
-    if (pricingInfo.isPayPerEvent) {
-      await Actor.pushData({ ...item, query }, 'post-reaction');
-    } else {
-      await Actor.pushData({ ...item, query });
-    }
-  },
-);
+const { pushData } = getPushData({ scraper, input });
 
 const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
   const reactionsQuery = {
