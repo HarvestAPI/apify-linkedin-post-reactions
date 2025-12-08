@@ -4,8 +4,6 @@ import { Actor } from 'apify';
 
 export function getPushData({ scraper, input }: { input: Input; scraper: LinkedinScraper }) {
   const { actorMaxPaidDatasetItems } = Actor.getEnv();
-  const cm = Actor.getChargingManager();
-  const pricingInfo = cm.getPricingInfo();
 
   const shouldScrapeProfiles =
     input.profileScraperMode === 'main' ||
@@ -52,9 +50,7 @@ export function getPushData({ scraper, input }: { input: Input; scraper: Linkedi
               return null;
             });
           if (profile?.element?.id) {
-            if (pricingInfo.isPayPerEvent) {
-              Actor.charge({ eventName: 'main-profile' });
-            }
+            Actor.charge({ eventName: 'main-profile' });
             item.actor = { ...item.actor, ...profile.element };
           }
         } else {
@@ -71,9 +67,7 @@ export function getPushData({ scraper, input }: { input: Input; scraper: Linkedi
             });
 
           if (company?.element?.id) {
-            if (pricingInfo.isPayPerEvent) {
-              Actor.charge({ eventName: 'main-profile' });
-            }
+            Actor.charge({ eventName: 'main-profile' });
             item.actor = { ...item.actor, ...company.element };
           }
         }
@@ -85,11 +79,7 @@ export function getPushData({ scraper, input }: { input: Input; scraper: Linkedi
       // main-profile
       // full-profile
       // full-profile-with-email
-      if (pricingInfo.isPayPerEvent) {
-        await Actor.pushData({ ...item, query }, 'post-reaction');
-      } else {
-        await Actor.pushData({ ...item, query });
-      }
+      await Actor.pushData({ ...item, query }, 'post-reaction');
     },
   );
 

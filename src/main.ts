@@ -31,11 +31,12 @@ if (!input.posts?.length) {
   process.exit(0);
 }
 
-const { actorId, actorRunId, actorBuildId, userId, actorMaxPaidDatasetItems, memoryMbytes } =
-  Actor.getEnv();
+const { actorId, actorRunId, actorBuildId, userId, memoryMbytes } = Actor.getEnv();
 
 const client = Actor.newClient();
 const user = userId ? await client.user(userId).get() : null;
+const cm = Actor.getChargingManager();
+const pricingInfo = cm.getPricingInfo();
 
 const scraper = createLinkedinScraper({
   apiKey: process.env.HARVESTAPI_TOKEN!,
@@ -46,16 +47,11 @@ const scraper = createLinkedinScraper({
     'x-apify-actor-run-id': actorRunId!,
     'x-apify-actor-build-id': actorBuildId!,
     'x-apify-memory-mbytes': String(memoryMbytes),
-    'x-apify-actor-max-paid-dataset-items': String(actorMaxPaidDatasetItems) || '0',
     'x-apify-username': user?.username || '',
     'x-apify-user-is-paying': (user as Record<string, any> | null)?.isPaying,
+    'x-apify-max-total-charge-usd': String(pricingInfo.maxTotalChargeUsd),
   },
 });
-
-let maxItems = Number(input.maxItems) || actorMaxPaidDatasetItems || undefined;
-if (actorMaxPaidDatasetItems && maxItems && maxItems > actorMaxPaidDatasetItems) {
-  maxItems = actorMaxPaidDatasetItems;
-}
 
 const { pushData } = getPushData({ scraper, input });
 
@@ -73,7 +69,7 @@ const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
     },
     overridePageConcurrency: 2,
     overrideConcurrency: 30,
-    maxItems,
+    maxItems: Number(input.maxItems) || undefined,
     disableLog: true,
   });
 });
@@ -81,4 +77,6 @@ const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
 await Promise.all(input.posts.map((post) => scrapePostQueue(post)));
 
 // Gracefully exit the Actor process. It's recommended to quit all Actors with an exit().
-await Actor.exit();
+await Actor.exit({
+  statusMessage: 'success',
+});
