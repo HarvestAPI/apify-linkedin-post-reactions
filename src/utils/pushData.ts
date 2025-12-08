@@ -67,7 +67,12 @@ export function getPushData({ scraper, input }: { input: Input; scraper: Linkedi
             });
 
           if (company?.element?.id) {
-            Actor.charge({ eventName: 'main-profile' });
+            const profileChargeResult = await Actor.charge({ eventName: 'main-profile' });
+            if (profileChargeResult.eventChargeLimitReached) {
+              await Actor.exit({
+                statusMessage: 'max charge reached',
+              });
+            }
             item.actor = { ...item.actor, ...company.element };
           }
         }
@@ -79,7 +84,12 @@ export function getPushData({ scraper, input }: { input: Input; scraper: Linkedi
       // main-profile
       // full-profile
       // full-profile-with-email
-      await Actor.pushData({ ...item, query }, 'post-reaction');
+      const pushResult = await Actor.pushData({ ...item, query }, 'post-reaction');
+      if (pushResult.eventChargeLimitReached) {
+        await Actor.exit({
+          statusMessage: 'max charge reached',
+        });
+      }
     },
   );
 

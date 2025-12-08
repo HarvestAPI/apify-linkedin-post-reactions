@@ -27,8 +27,9 @@ if (!input) throw new Error('Input is missing!');
 input.posts = (input.posts || []).filter((q) => q && !!q.trim());
 if (!input.posts?.length) {
   console.error('No search queries provided!');
-  await Actor.exit();
-  process.exit(0);
+  await Actor.exit({
+    statusMessage: 'no-posts-provided',
+  });
 }
 
 const { actorId, actorRunId, actorBuildId, userId, memoryMbytes } = Actor.getEnv();
@@ -37,6 +38,15 @@ const client = Actor.newClient();
 const user = userId ? await client.user(userId).get() : null;
 const cm = Actor.getChargingManager();
 const pricingInfo = cm.getPricingInfo();
+
+if (pricingInfo.maxTotalChargeUsd < 0.002) {
+  console.warn(
+    'Warning: The maximum total charge is set to less than $0.002, which will not be sufficient for scraping.',
+  );
+  await Actor.exit({
+    statusMessage: 'max charge reached',
+  });
+}
 
 const scraper = createLinkedinScraper({
   apiKey: process.env.HARVESTAPI_TOKEN!,
