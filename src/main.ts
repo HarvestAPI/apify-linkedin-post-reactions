@@ -65,7 +65,7 @@ const scraper = createLinkedinScraper({
 
 const { pushData } = getPushData({ scraper, input });
 
-const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
+const scrapePostQueue = createConcurrentQueues(1, async (post: string) => {
   const reactionsQuery = {
     post: post,
   };
@@ -76,6 +76,11 @@ const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
     onItemScraped: async ({ item }) => {
       if (!item) return;
       await pushData(item, reactionsQuery);
+    },
+    onPageFetched: async ({ page, data }) => {
+      console.info(
+        `Fetched reactions page: ${page} for ${data?.query?.post}. Found ${data?.elements?.length} reactions on the page. Total pages to scrape: ${data?.pagination?.totalPages}. Total number of reactions: ${data?.pagination?.totalResultCount || data?.pagination?.totalElements} `,
+      );
     },
     overridePageConcurrency: 2,
     overrideConcurrency: 30,
