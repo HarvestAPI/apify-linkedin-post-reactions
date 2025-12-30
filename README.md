@@ -8,7 +8,6 @@ Our powerful tool helps you extract LinkedIn post social activities and reaction
 - Low pricing: $2 per 1k reactions.
 - Fast response times deliver data in seconds 🚀
 - No caching, fresh data.
-- Concurrency: each actor works scraping 6 posts at a time.
 
 ## How It Works
 
