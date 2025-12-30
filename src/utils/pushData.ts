@@ -74,7 +74,10 @@ export function getPushData({ scraper, input }: { input: Input; scraper: Linkedi
       }
 
       if (item.actor?.linkedinUrl && shouldScrapeProfiles) {
-        const profileData = await fetchProfileData(item.actor.linkedinUrl);
+        const profileData = await fetchProfileData(item.actor.linkedinUrl).catch((err) => {
+          console.warn(`Failed to fetch profile for reaction ${item.id}: ${err.message}`, err);
+          return null;
+        });
         if (profileData) {
           item.actor = { ...item.actor, ...profileData };
         }

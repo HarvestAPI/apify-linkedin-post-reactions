@@ -26,7 +26,7 @@ Other params (optionally):
 - Actor's position
 - Actor's profile picture URL
 
-Note: By default, Actor's encoded LinkedIn profile URL is returns. That's because LinkedIn website shows these URLs for reactions, and our Actor can only get the information available on the website. To work around this, you can enable profile scraping on the Actor's input page -> `Profile Scraper Mode` field. This will allow the Actor to visit each encoded link and extract the actual LinkedIn profile URL along with additional profile details (additional cost applies for profile scraping).
+Note: By default, this Actor returns encoded LinkedIn profile URLs as provided by the LinkedIn website. To obtain standard profile URLs and additional user data, enable Profile Scraper Mode in the input settings. Please note that visiting individual profiles incurs additional usage costs.
 
 ### Sample output data
 
