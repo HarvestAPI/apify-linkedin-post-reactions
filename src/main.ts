@@ -65,7 +65,7 @@ const scraper = createLinkedinScraper({
 
 const { pushData } = getPushData({ scraper, input });
 
-const scrapePostQueue = createConcurrentQueues(1, async (post: string) => {
+const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
   const reactionsQuery = {
     post: post,
   };
