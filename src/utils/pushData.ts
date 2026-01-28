@@ -12,7 +12,7 @@ export function getPushData({ scraper, input }: { input: Input; scraper: Linkedi
 
   let totalItemsCounter = 0;
 
-  const fetchProfileData = createConcurrentQueues(30, async (profileUrl: string) => {
+  const fetchProfileData = createConcurrentQueues(15, async (profileUrl: string) => {
     if (profileUrl.includes('linkedin.com/in/')) {
       const profile = await scraper
         .getProfile({
@@ -51,7 +51,7 @@ export function getPushData({ scraper, input }: { input: Input; scraper: Linkedi
   });
 
   const pushData = createConcurrentQueues(
-    100,
+    30,
     async (item: PostReaction, query: Record<string, any>) => {
       if (
         input.reactionTypeFilter &&
