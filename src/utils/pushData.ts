@@ -19,7 +19,7 @@ export function getPushData({ scraper, input }: { input: Input; scraper: Linkedi
           url: profileUrl,
           main: true,
         })
-        .catch((err) => {
+        .catch((err: any) => {
           console.warn(`Failed to fetch profile ${profileUrl}: ${err.message}`, err);
           return null;
         });

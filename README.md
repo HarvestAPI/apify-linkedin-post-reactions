@@ -1,6 +1,6 @@
 ## LinkedIn Post Reactions Mass scraper
 
-Our powerful tool helps you extract LinkedIn post or or post comment social activities and reactions such as likes, appreciations, praises without compromising security or violating platform policies. It is very helpful for engagement analysis and outreach purposes.
+Our powerful tool helps you extract LinkedIn posts, post comments, social activities, and reactions such as likes, appreciations, and praises without compromising security or violating platform policies. It is very helpful for engagement analysis and outreach purposes.
 
 ### Key Benefits
 
@@ -26,6 +26,8 @@ Other params (optionally):
 - Actor's profile picture URL
 
 Note: By default, this Actor returns encoded LinkedIn profile URLs as provided by the LinkedIn website. To obtain standard profile URLs and additional user data, enable Profile Scraper Mode in the input settings. Please note that visiting individual profiles incurs additional usage costs.
+
+Note: The total number of reactions is limited by the LinkedIn website reactions loader pop-up. Currently, the website stops loading more reactions after 1218 items. This Actor is scraping the LinkedIn website. It can only get the information that is available on the website.
 
 ### Sample output data
 
