@@ -33,11 +33,9 @@ if (!input.posts?.length) {
 }
 
 const { actorId, actorRunId, actorBuildId, userId, memoryMbytes } = Actor.getEnv();
-
-const client = Actor.newClient();
-const user = userId ? await client.user(userId).get() : null;
 const cm = Actor.getChargingManager();
 const pricingInfo = cm.getPricingInfo();
+const isPaying = !!process.env.APIFY_USER_IS_PAYING;
 
 if (pricingInfo.maxTotalChargeUsd < 0.002) {
   console.warn(
@@ -57,9 +55,10 @@ const scraper = createLinkedinScraper({
     'x-apify-actor-run-id': actorRunId!,
     'x-apify-actor-build-id': actorBuildId!,
     'x-apify-memory-mbytes': String(memoryMbytes),
-    'x-apify-username': user?.username || '',
-    'x-apify-user-is-paying': (user as Record<string, any> | null)?.isPaying,
+    'x-apify-user-is-paying': String(isPaying),
+    'x-apify-user-is-paying-2': process.env.APIFY_USER_IS_PAYING || '',
     'x-apify-max-total-charge-usd': String(pricingInfo.maxTotalChargeUsd),
+    'x-apify-is-pay-per-event': String(pricingInfo.isPayPerEvent),
   },
 });
 
