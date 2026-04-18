@@ -1,6 +1,6 @@
 ## LinkedIn Post Reactions Mass scraper
 
-Our powerful tool helps you extract LinkedIn posts, post comments, social activities, and reactions such as likes, appreciations, and praises without compromising security or violating platform policies. It is very helpful for engagement analysis and outreach purposes.
+Our powerful tool helps you extract reactions to LinkedIn posts or comments, such as likes, appreciations, and praises, without compromising security or violating platform policies. It is very helpful for engagement analysis and outreach purposes.
 
 ### Key Benefits
 
